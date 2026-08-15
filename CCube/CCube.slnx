@@ -3,5 +3,5 @@
     <Platform Name="x64" />
     <Platform Name="x86" />
   </Configurations>
-  <Project Path="CCube/CCube.vcxproj" />
+  <Project Path="CCube/CCube.vcxproj" Id="3fb2fc64-6d51-48af-b38f-e36a6b78f03e" />
 </Solution>
