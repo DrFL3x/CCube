@@ -14,7 +14,6 @@ const char windowClassName[] = "CubeWindow";
 uint32_t* pixel_buffer;
 BITMAPINFO bmpi;
 
-
 LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	switch (msg)
@@ -54,25 +53,30 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	return 0;
 }
 
+void DrawRectangle(xyStart sCoord, int w, int h, uint32_t color)
+{
+	for (int py = sCoord.y; py < sCoord.y + h; py++)
+	{
+		for (int px = sCoord.x; px < sCoord.x + w; px++)
+		{
+			int i = py * WINDOW_WIDTH + px;
+			pixel_buffer[i] = color;
+		}
+	}
+}
+
 int main()
 {
-	//printf("Hello there");
+	printf("Hello there");
 	
 	int rect_w = 100;
 	int rect_h = 100;
-	xyStart Scoord = { 100 ,100 };
+	xyStart sCoord = { 100 ,100 };
 
 	// Window buffer
 	pixel_buffer = malloc(WINDOW_HEIGHT * WINDOW_WIDTH * sizeof(uint32_t));
-	
-	for(int py = Scoord.y; py < Scoord.y + rect_h; py++)
-	{
-		for (int px = Scoord.x; px < Scoord.x + rect_w; px++)
-		{
-			int i = py * WINDOW_WIDTH + px;
-			pixel_buffer[i]= 0x00FF0000;
-		}
-	}
+	uint32_t color = 0x00FF0000; // Red
+	DrawRectangle(sCoord, rect_w, rect_h, color);
 
 	// Bitmap
 	bmpi.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
@@ -109,7 +113,7 @@ int main()
 	HWND hwnd;
 	hwnd = CreateWindowEx(WS_EX_CLIENTEDGE,
 		windowClassName,
-		"Cube window",
+		L"Cube window",
 		WS_OVERLAPPEDWINDOW,
 		CW_USEDEFAULT, CW_USEDEFAULT, WINDOW_WIDTH, WINDOW_HEIGHT,
 		NULL, NULL, GetModuleHandle(NULL), NULL);
