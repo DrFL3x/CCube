@@ -1,8 +1,0 @@
-﻿  main.c
-D:\Source\CCube\CCube\CCube\main.c(103,19): warning C4133: '=': incompatible types - from 'const char *' to 'LPCWSTR'
-D:\Source\CCube\CCube\CCube\main.c(108,20): warning C4133: 'function': incompatible types - from 'char [28]' to 'LPCWSTR'
-D:\Source\CCube\CCube\CCube\main.c(108,51): warning C4133: 'function': incompatible types - from 'char [7]' to 'LPCWSTR'
-D:\Source\CCube\CCube\CCube\main.c(115,3): warning C4133: 'function': incompatible types - from 'const char [11]' to 'LPCWSTR'
-D:\Source\CCube\CCube\CCube\main.c(122,20): warning C4133: 'function': incompatible types - from 'char [24]' to 'LPCWSTR'
-D:\Source\CCube\CCube\CCube\main.c(122,47): warning C4133: 'function': incompatible types - from 'char [7]' to 'LPCWSTR'
-  CCube.vcxproj -> D:\Source\CCube\CCube\x64\Debug\CCube.exe
