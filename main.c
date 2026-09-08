@@ -72,32 +72,6 @@ void swap_points2d(Point2D* point1, Point2D*  point2)
 	*point2 = temp;
 }
 
-void DrawTriangle(Point2D point1, Point2D point2, Point2D point3)
-{
-	Point2D vertice_top;
-	Point2D vertice_middle;
-	Point2D vertice_bottom;
-
-	vertice_top= point1;
-	vertice_middle = point2;
-	vertice_bottom = point3;
-
-	if (vertice_top.y < vertice_middle.y)
-	{
-		swap_points2d(&vertice_top,&vertice_middle);
-	}
-	if (vertice_top.y < vertice_bottom.y )
-	{
-		swap_points2d(&vertice_top, &vertice_bottom);
-	}
-	if (vertice_middle.y < vertice_bottom.y)
-	{
-		swap_points2d(&vertice_middle, &vertice_bottom);
-	}
-
-	//int delta_x1 = 
-}
-
 void DrawPrimitiveRectangle(xyStart sCoord, int w, int h, uint32_t color)
 {
 	for (int py = sCoord.y; py < sCoord.y + h; py++)
@@ -109,7 +83,6 @@ void DrawPrimitiveRectangle(xyStart sCoord, int w, int h, uint32_t color)
 		}
 	}
 }
-
 
 void DrawCircle(xyStart sCoord, int radius, uint32_t color)
 {
@@ -132,6 +105,153 @@ void DrawCircle(xyStart sCoord, int radius, uint32_t color)
 	}
 }
 
+void DrawTriangle(Point2D point1, Point2D point2, Point2D point3, uint32_t color)
+{
+	Point2D vertice_bottom;
+	Point2D vertice_middle;
+	Point2D vertice_top;
+	
+	// sort vertices by y
+	vertice_bottom = point1;
+	vertice_middle = point2;
+	vertice_top = point3;
+
+	if (vertice_bottom.y < vertice_middle.y)
+	{
+		swap_points2d(&vertice_bottom,&vertice_middle);
+	}
+	if (vertice_bottom.y < vertice_top.y )
+	{
+		swap_points2d(&vertice_bottom, &vertice_top);
+	}
+	if (vertice_middle.y < vertice_top.y)
+	{
+		swap_points2d(&vertice_middle, &vertice_top);
+	}
+
+	// calculate slope
+	// y= kx + b
+	// k= delta(x)/ delta(y)
+
+	int delta_X_top_bottom    = vertice_top.x - vertice_bottom.x;
+	int delta_X_top_middle    = vertice_top.x - vertice_middle.x;
+	int delta_X_middle_bottom = vertice_middle.x- vertice_bottom.x;
+
+	int delta_Y_top_bottom    = vertice_top.y - vertice_bottom.y;
+	int delta_Y_top_middle    = vertice_top.y - vertice_middle.y;
+	int delta_Y_middle_bottom = vertice_middle.y - vertice_bottom.y;
+	
+	float slope_top_bottom    = (float)delta_X_top_bottom / delta_Y_top_bottom;
+	float slope_top_middle    = (float)delta_X_top_middle / delta_Y_top_middle;
+	float slope_middle_bottom = (float)delta_X_middle_bottom / delta_Y_middle_bottom;
+
+	// Interpolate top-mid 
+	int x0 = vertice_top.x;
+	int y0 = vertice_top.y;
+	for (int y = vertice_top.y; y < vertice_middle.y; y++)
+	{
+		// x = x0 + (y - y0) * dx / dy;
+		float x_left  = x0 + ( y - y0 ) * slope_top_middle;
+		float x_right = x0 + ( y - y0 ) * slope_top_bottom;
+		
+		int x_start= x_left;
+		int x_end= x_right;
+		if (x_start > x_end)
+		{
+			int temp = x_start;
+			x_start = x_end;
+			x_end = temp;
+		}
+
+		for (float x = x_start; x < x_end; x++)
+		{
+			int i =(int)y * WINDOW_WIDTH + x;
+			pixel_buffer[i] = color;
+		}
+				
+	}
+	// Interpolate mid-bottom
+	int x0_m = vertice_middle.x;
+	int y0_m = vertice_middle.y;
+	for (int y = y0_m; y < vertice_bottom.y; y++)
+	{
+		// x = x0 + (y - y0) * dx / dy;
+		float x_left = x0_m + (y - y0_m) * slope_middle_bottom;
+		float x_right = x0 + (y - y0) * slope_top_bottom;
+
+		int x_start = x_left;
+		int x_end = x_right;
+		if (x_start > x_end)
+		{
+			int temp = x_start;
+			x_start = x_end;
+			x_end = temp;
+		}
+
+		for (float x = x_start; x < x_end; x++)
+		{
+			int i = (int)y * WINDOW_WIDTH + x;
+			pixel_buffer[i] = color;
+		}
+	}
+
+}
+
+void draw_line(Point2D point1, Point2D point2, uint32_t color)
+{
+	Point2D point_top = point1;
+	Point2D point_bottom = point2;
+
+	if (point1.y > point2.y)
+	{
+		swap_points2d(&point_top, &point_bottom);
+	}
+	// calculate the slope
+	int delta_x = point_bottom.x - point_top.x;
+	int delta_y = point_bottom.y - point_top.y;
+	float slope = (float) delta_x / (float) delta_y;
+
+	if (delta_y == 0)
+	{
+		if (delta_x == 0)
+		{
+			return;
+		}
+				
+		int	x_start = point_top.x;
+		int x_end = point_bottom.x;
+		if (x_start > x_end)
+		{
+			int temp = x_start;
+			x_start = x_end;
+			x_end = temp;
+		}
+
+		int y = point_top.y;
+		for (int x = x_start ; x< x_end ; x++)
+		{
+			if(x>=0 && x < WINDOW_WIDTH && y>=0 && y < WINDOW_HEIGHT)
+			{
+				int i = y * WINDOW_WIDTH + x;
+				pixel_buffer[i] = color;
+			}
+		}
+		return;
+	}
+
+	for (int y = point_top.y; y < point_bottom.y; y++)
+	{
+		// x = x0 + (y - y0) * dx / dy;
+		float x = point_top.x + (y - point_top.y) * slope;
+		if (x >= 0 && x < WINDOW_WIDTH && y >= 0 && y < WINDOW_HEIGHT)
+		{
+			int i = y * WINDOW_WIDTH + x;
+			pixel_buffer[i] = color;
+		}
+	}
+}
+
+
 
 int main()
 {
@@ -145,17 +265,20 @@ int main()
 	// Window buffer
 	pixel_buffer = malloc(WINDOW_HEIGHT * WINDOW_WIDTH * sizeof(uint32_t));
 	uint32_t color = 0x00FF0000; // Red
-	
-	// Draw
-	//DrawPrimitiveRectangle(sCoord, rect_w, rect_h, color);
-	//DrawCircle(sCoordCircle, 50, color);
 
+	Point2D xy1 = {100,100};
+	Point2D xy2 = {50,150};
+	Point2D xy3 = {120,200};
+	Point2D xy1_l = {160,100};
+	Point2D xy2_l = {110,150};
+	Point2D xy3_l = {180,200};
 
-	Point2D xy1 = {1,1};
-	Point2D xy2 = {2,2};
-	Point2D xy3 = {3,3};
-	DrawTriangle(xy1, xy2, xy3);
+	DrawTriangle(xy1, xy2, xy3, color);
 	
+	draw_line(xy1_l,xy2_l, color);
+	draw_line(xy2_l,xy3_l, color);
+	draw_line(xy3_l,xy1_l, color);
+
 	// Bitmap
 	bmpi.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
 	bmpi.bmiHeader.biWidth = WINDOW_WIDTH;
