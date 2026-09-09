@@ -1,10 +1,11 @@
 #include <stdio.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include <Windows.h>
 #include <math.h>
 
-WINDOW_HEIGHT = 500;
-WINDOW_WIDTH = 500;
+int WINDOW_HEIGHT = 500;
+int WINDOW_WIDTH  = 500;
 
 typedef struct {
 	int x;
@@ -22,7 +23,7 @@ typedef struct {
 	float z;
 }Point3D;
 
-const char windowClassName[] = "CubeWindow";
+const wchar_t windowClassName[] = L"CubeWindow";
 uint32_t* pixel_buffer;
 BITMAPINFO bmpi;
 
@@ -263,7 +264,7 @@ int main()
 	xyStart sCoordCircle = { 200 ,200 };
 
 	// Window buffer
-	pixel_buffer = malloc(WINDOW_HEIGHT * WINDOW_WIDTH * sizeof(uint32_t));
+	pixel_buffer = (uint32_t*)malloc(WINDOW_HEIGHT * WINDOW_WIDTH * sizeof(uint32_t));
 	uint32_t color = 0x00FF0000; // Red
 
 	Point2D xy1 = {100,100};
@@ -306,7 +307,7 @@ int main()
 
 	if (!RegisterClassEx(&wc))
 	{
-		MessageBox(NULL, "Window Registration Failed!", "Error!", MB_ICONEXCLAMATION | MB_OK);
+		MessageBox(NULL, L"Window Registration Failed!", L"Error!", MB_ICONEXCLAMATION | MB_OK);
 		return 0;
 	}
 
@@ -320,7 +321,7 @@ int main()
 		NULL, NULL, GetModuleHandle(NULL), NULL);
 	if (hwnd == NULL)
 	{
-		MessageBox(NULL, "Window Creation Failed!", "Error!", MB_ICONEXCLAMATION | MB_OK);
+		MessageBox(NULL, L"Window Creation Failed!", L"Error!", MB_ICONEXCLAMATION | MB_OK);
 		return 0;
 	}
 	ShowWindow(hwnd, SW_SHOWNORMAL);
